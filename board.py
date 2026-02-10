@@ -1,10 +1,10 @@
 class Board:
     # Board is a 10 x 10 array of ints, 0 = Empty space, 1 = Apple, 2 = Snake body
-    def __init__(self, appleX, appleY, BOARD_SIZE):
+    def __init__(self, appleX, appleY):
         self.appleX = appleX
         self.appleY = appleY
         # Initialize our grid
-        self.grid = [[0 for _ in range(10)] for _ in range(BOARD_SIZE)]
+        self.grid = [[0 for _ in range(10)] for _ in range(10)]
         # Set our apple
         self.grid[appleX][appleY] = 1
 
