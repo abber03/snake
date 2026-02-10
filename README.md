@@ -1,0 +1,1 @@
+This repository contains the code for our Intro To Programming Project: Snake
