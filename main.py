@@ -1,5 +1,6 @@
 import time
 from board import Board
+from snake import Snake
 import random
 
 
@@ -14,8 +15,14 @@ def main():
     initialAppleX = random.randint(0, 9)
     initialAppleY = random.randint(0, 9)
 
+    # Create our snake
+    snake = Snake()
+    snake_deque = snake.get_snake_deque()
+
     # Create our game board with initial apple location
     gameBoard = Board(initialAppleX, initialAppleY)
+
+    gameBoard.set_snake_from_deque(snake_deque)
 
     # Game Loop: Render Board, wait for input, clear terminal
     while 1:

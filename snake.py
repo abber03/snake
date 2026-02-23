@@ -49,3 +49,6 @@ class Snake:
         opposite = (-self.direction[0], -self.direction[1])
         if new_direction != opposite:
             self.direction = new_direction
+
+    def get_snake_deque(self):
+        return self.snake_deque
