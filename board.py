@@ -1,36 +1,60 @@
 class Board:
-    # TODO: Handle snake head using direction (^, <, >, v) instead of an S
-    # Board is a 10 x 10 array of ints, 0 = Empty space, 1 = Apple, 2 = Snake body
-    def __init__(self, appleX, appleY):
-        self.appleX = appleX
-        self.appleY = appleY
-        # Initialize our grid
-        self.grid = [[0 for _ in range(10)] for _ in range(10)]
-        # Set our apple
-        self.grid[appleX][appleY] = 1
+    EMPTY, APPLE, BODY, HEAD_UP, HEAD_LEFT, HEAD_RIGHT, HEAD_DOWN = 0, 1, 2, 3, 4, 5, 6
+
+    def __init__(self, apple_row, apple_col):
+        self.apple_row = apple_row
+        self.apple_col = apple_col
+        self.grid = [[self.EMPTY for _ in range(10)] for _ in range(10)]
+        self.grid[self.apple_row][self.apple_col] = self.APPLE
+
+    def set_apple(self, r, c):
+        self.apple_row, self.apple_col = r, c
+
+    def clear_snake(self):
+        for r in range(10):
+            for c in range(10):
+                if self.grid[r][c] in (self.BODY, self.HEAD_UP, self.HEAD_LEFT, self.HEAD_RIGHT, self.HEAD_DOWN):
+                    self.grid[r][c] = self.EMPTY
+        # put apple back
+        self.grid[self.apple_row][self.apple_col] = self.APPLE
+
+    def set_snake_from_deque(self, snake_deque, direction):
+        """
+        snake_deque holds (row, col) pairs, tail at index 0, head at -1
+        direction is a tuple: (dr, dc)
+        """
+        self.clear_snake()
+
+        # body (everything except head)
+        for (r, c) in list(snake_deque)[:-1]:
+            self.grid[r][c] = self.BODY
+
+        # head
+        hr, hc = snake_deque[-1]
+        head_code = {
+            (-1, 0): self.HEAD_UP,
+            (1, 0):  self.HEAD_DOWN,
+            (0, -1): self.HEAD_LEFT,
+            (0, 1):  self.HEAD_RIGHT,
+        }.get(direction, self.HEAD_RIGHT)
+
+        self.grid[hr][hc] = head_code
+
+        # ensure apple still visible
+        self.grid[self.apple_row][self.apple_col] = self.APPLE
 
     def render(self):
-        EMPTY, APPLE, SNAKE, RIGHT = 0, 1, 2, 3
+        symbols = {
+            self.EMPTY:     " . ",
+            self.APPLE:     " A ",
+            self.BODY:      " o ",
+            self.HEAD_UP:   " ^ ",
+            self.HEAD_LEFT: " < ",
+            self.HEAD_RIGHT:" > ",
+            self.HEAD_DOWN: " v ",
+        }
         for row in self.grid:
-            for point in row:
-                if point == EMPTY:
-                    print(" . ", end='')
-                if point == APPLE:
-                    print(" A ", end='')
-                if point == SNAKE:
-                    print(" S ", end='')
-                if point == RIGHT:
-                    print(" > ", end='')
-
+            for cell in row:
+                print(symbols.get(cell, " ? "), end="")
             print()
-
-
-    # TODO: Perhaps take direction in as an argument? Right now we are just setting to right
-    def set_snake_from_deque(self, snake_deque):
-        for i in range(len(snake_deque) - 1):
-            x, y = snake_deque[i]
-            self.grid[x][y] = 2
-
-        # Now Set Head
-        i, j = snake_deque[-1]
-        self.grid[i][j] = 3
+            
