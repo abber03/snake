@@ -22,10 +22,11 @@ The snake moves around a 10x10 board and grows when it eats apples. The game end
 python game.py
 
 3. Use:
-   W = Up
-   A = Left
-   S = Down
-   D = Right
+Arrows to move up, down, left, right.
+up arrow = moves snake up
+down arrow = moves snake down
+left arrow = moves snake left
+right arrow = moves snake right
 
 Press Ctrl+C to quit.
 
