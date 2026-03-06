@@ -15,8 +15,9 @@ The snake moves around a 10x10 board and grows when it eats apples. The game end
 
 ## How to Run
 
-1. Open terminal in project folder.
-2. Run:
+1. Download "game.py"
+2. Run "python3 -m pip install pygame-ce" in the TERMINAL section, not in the code.
+3. Run the code
 
 python game.py
 
