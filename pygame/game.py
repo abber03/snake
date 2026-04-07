@@ -1,21 +1,22 @@
 import random
 import sys
 import pygame
+import math
 
 # ---------------------------
 # Config
 # ---------------------------
 CELL_SIZE = 24
-GRID_W, GRID_H = 25, 20  # 25x20 cells
+GRID_W, GRID_H = 25, 20
 WIDTH, HEIGHT = GRID_W * CELL_SIZE, GRID_H * CELL_SIZE
 FPS = 12
 
-# Colors
 BG = (18, 18, 22)
 GRID = (35, 35, 45)
 SNAKE = (80, 220, 120)
 SNAKE_HEAD = (40, 255, 140)
 FOOD = (255, 90, 90)
+PORTAL = (120, 120, 255)
 TEXT = (230, 230, 240)
 
 DIRS = {
@@ -28,19 +29,13 @@ DIRS = {
 # ---------------------------
 # Helpers
 # ---------------------------
-def wrap(pos):
-    x, y = pos
-    return (x % GRID_W, y % GRID_H)
-
-def random_empty_cell(occupied: set[tuple[int, int]]):
-    # returns a random cell not in occupied
+def random_empty_cell(occupied):
     while True:
         cell = (random.randrange(GRID_W), random.randrange(GRID_H))
         if cell not in occupied:
             return cell
 
 def draw_grid(screen):
-    # subtle grid
     for x in range(0, WIDTH, CELL_SIZE):
         pygame.draw.line(screen, GRID, (x, 0), (x, HEIGHT), 1)
     for y in range(0, HEIGHT, CELL_SIZE):
@@ -65,7 +60,13 @@ def render_text(screen, font, msg, x, y):
 # ---------------------------
 class SnakeGame:
     def __init__(self):
-        self.reset()
+        self.state = "menu"
+        self.snake = []
+        self.dir = (1, 0)
+        self.pending_dir = self.dir
+        self.score = 0
+        self.food = None
+        self.portals = []
 
     def reset(self):
         cx, cy = GRID_W // 2, GRID_H // 2
@@ -73,11 +74,22 @@ class SnakeGame:
         self.dir = (1, 0)
         self.pending_dir = self.dir
         self.score = 0
-        self.game_over = False
-        self.food = random_empty_cell(set(self.snake))
+
+        occupied = set(self.snake)
+
+        self.food = random_empty_cell(occupied)
+        occupied.add(self.food)
+
+        # create 3 portals
+        self.portals = []
+        for _ in range(3):
+            p = random_empty_cell(occupied)
+            self.portals.append(p)
+            occupied.add(p)
+
+        self.state = "playing"
 
     def set_dir(self, new_dir):
-        # prevent reversing into itself
         dx, dy = new_dir
         cdx, cdy = self.dir
         if (dx, dy) == (-cdx, -cdy):
@@ -85,37 +97,84 @@ class SnakeGame:
         self.pending_dir = (dx, dy)
 
     def step(self):
-        if self.game_over:
+        if self.state != "playing":
             return
 
         self.dir = self.pending_dir
         hx, hy = self.snake[0]
         dx, dy = self.dir
-        new_head = wrap((hx + dx, hy + dy))
 
-        # collision with body (allow moving into last tail cell if it will move away)
-        body = set(self.snake[:-1])
-        if new_head in body:
-            self.game_over = True
+        new_head = (hx + dx, hy + dy)
+
+        # wall collision
+        if not (0 <= new_head[0] < GRID_W and 0 <= new_head[1] < GRID_H):
+            self.state = "game_over"
+            return
+
+        # portal teleport (ANY portal)
+        if new_head in self.portals:
+            occupied = set(self.snake)
+            new_head = random_empty_cell(occupied)
+
+        # body collision
+        if new_head in set(self.snake[:-1]):
+            self.state = "game_over"
             return
 
         self.snake.insert(0, new_head)
 
         if new_head == self.food:
             self.score += 1
-            # grow: don't pop tail
             occupied = set(self.snake)
+
             self.food = random_empty_cell(occupied)
+            occupied.add(self.food)
+
+            # regenerate portals
+            self.portals = []
+            for _ in range(3):
+                p = random_empty_cell(occupied)
+                self.portals.append(p)
+                occupied.add(p)
         else:
-            # move: remove tail
             self.snake.pop()
 
     def draw(self, screen, font):
         screen.fill(BG)
+        current_time = pygame.time.get_ticks()
+
+        # MENU
+        if self.state == "menu":
+            big = pygame.font.SysFont("menlo", 56, bold=True)
+            small = pygame.font.SysFont("menlo", 20)
+
+            float_offset = int(math.sin(current_time * 0.005) * 10)
+
+            title = big.render("Snake Game", True, TEXT)
+            screen.blit(title,
+                        (WIDTH // 2 - title.get_width() // 2,
+                         HEIGHT // 2 - 100 + float_offset))
+
+            if (current_time // 500) % 2 == 0:
+                msg = small.render("Press SPACE to Start", True, TEXT)
+                screen.blit(msg,
+                            (WIDTH // 2 - msg.get_width() // 2,
+                             HEIGHT // 2))
+
+            controls = small.render("Arrow Keys to Move", True, TEXT)
+            screen.blit(controls,
+                        (WIDTH // 2 - controls.get_width() // 2,
+                         HEIGHT // 2 + 40))
+            return
+
         draw_grid(screen)
 
         # food
         draw_cell(screen, self.food, FOOD, inset=4)
+
+        # portals
+        for p in self.portals:
+            draw_cell(screen, p, PORTAL, inset=4)
 
         # snake
         for i, cell in enumerate(self.snake):
@@ -123,19 +182,17 @@ class SnakeGame:
 
         render_text(screen, font, f"Score: {self.score}", 10, 8)
 
-        if self.game_over:
-            # overlay message
+        # GAME OVER
+        if self.state == "game_over":
             overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 140))
             screen.blit(overlay, (0, 0))
 
-            msg1 = "Game Over"
-            msg2 = "Press R to restart  |  Esc to quit"
             big = pygame.font.SysFont("menlo", 44, bold=True)
             small = pygame.font.SysFont("menlo", 18)
 
-            s1 = big.render(msg1, True, TEXT)
-            s2 = small.render(msg2, True, TEXT)
+            s1 = big.render("Game Over", True, TEXT)
+            s2 = small.render("Press R to Restart", True, TEXT)
 
             screen.blit(s1, (WIDTH // 2 - s1.get_width() // 2, HEIGHT // 2 - 50))
             screen.blit(s2, (WIDTH // 2 - s2.get_width() // 2, HEIGHT // 2 + 10))
@@ -145,17 +202,15 @@ class SnakeGame:
 # ---------------------------
 def main():
     pygame.init()
-    pygame.display.set_caption("Snake")
+    pygame.display.set_caption("Snake Final Project")
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("menlo", 20)
 
     game = SnakeGame()
 
-    # Movement timing (so holding keys doesn't spam direction changes too fast)
     tick_ms = int(1000 / FPS)
     acc = 0
-
     last_time = pygame.time.get_ticks()
 
     while True:
@@ -170,15 +225,24 @@ def main():
                 sys.exit()
 
             if event.type == pygame.KEYDOWN:
-                if event.key in DIRS:
-                    game.set_dir(DIRS[event.key])
-                elif event.key == pygame.K_r:
-                    game.reset()
-                elif event.key == pygame.K_ESCAPE:
+                if game.state == "menu":
+                    if event.key == pygame.K_SPACE:
+                        game.reset()
+
+                elif game.state == "playing":
+                    if event.key in DIRS:
+                        game.set_dir(DIRS[event.key])
+                    elif event.key == pygame.K_r:
+                        game.reset()
+
+                elif game.state == "game_over":
+                    if event.key == pygame.K_r:
+                        game.reset()
+
+                if event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
 
-        # Fixed-step updates
         while acc >= tick_ms:
             game.step()
             acc -= tick_ms
