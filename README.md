@@ -1,39 +1,50 @@
-This repository contains the code for our Intro To Programming Project: Snake. By Abigail and Maggie.
+. By Abigail and Maggie.
 
-The snake moves around a 10x10 board and grows when it eats apples. The game ends if the snake hits a wall or collides with itself.
+A classic Snake game built with Python and Pygame, featuring portal teleportation for Intro to Programming by Abigail Arnold and Maggie Woywod
 
 ## Features
-- Snake movement (WASD controls)
-- Apple spawning
-- Snake growth
-- Wall collision detection
-- Self-collision detection
-- Unit test suite
+
+- Smooth snake movement with arrow key controls
+- **Portal system** — 3 portals on the grid teleport the snake to a random location; portals regenerate after each food pickup
+- Score tracking
+- Menu screen with animated title
+- Game over overlay with restart option
 
 ## Requirements
+
 - Python 3.x
 
 ## How to Run
 
-1. Download "game.py"
-2. Run "python3 -m pip install pygame-ce" in the TERMINAL section, not in the code.
-3. Run the code
+1. Open terminal in project folder.
+2. Run:
 
-python game.py
+python main.py
 
 3. Use:
-Arrows to move up, down, left, right.
-up arrow = moves snake up
-down arrow = moves snake down
-left arrow = moves snake left
-right arrow = moves snake right
+   W = Up
+   A = Left
+   S = Down
+   D = Right
 
 Press Ctrl+C to quit.
 
-## Running Tests
+## Project Structure
 
-To run tests:
+```
+game.py       # Main game file (all logic and rendering)
+README.md      # This file
+```
 
-python -m unittest test_snake.py
+## Configuration
+
+At the top of `game.py` you can tweak these constants:
+
+| Constant | Default | Description |
+|----------|---------|-------------|
+| `CELL_SIZE` | `24` | Size of each grid cell in pixels |
+| `GRID_W` | `25` | Grid width (columns) |
+| `GRID_H` | `20` | Grid height (rows) |
+| `FPS` | `12` | Snake movement speed |
 
 All tests should pass.
