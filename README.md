@@ -15,10 +15,10 @@ A classic Snake game built with Python and Pygame, with a twist! Featuring porta
 
 ## How to Run
 
-1. Open terminal in project folder.
-2. Run:
-
-python main.py
+ Open terminal in project folder.
+1. Download "game.py"
+2. Run "python3 -m pip install pygame-ce" in the TERMINAL section, not in the code.
+3. Run the code
 
 3. Use:
    Up Arrow = Up
