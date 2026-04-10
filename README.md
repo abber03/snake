@@ -1,6 +1,5 @@
-. By Abigail and Maggie.
 
-A classic Snake game built with Python and Pygame, featuring portal teleportation for Intro to Programming by Abigail Arnold and Maggie Woywod
+A classic Snake game built with Python and Pygame, with a twist! Featuring portal teleportation for Intro to Programming by Abigail Arnold and Maggie Woywod
 
 ## Features
 
@@ -22,12 +21,11 @@ A classic Snake game built with Python and Pygame, featuring portal teleportatio
 python main.py
 
 3. Use:
-   W = Up
-   A = Left
-   S = Down
-   D = Right
+   Up Arrow = Up
+   Left Arrow = Left
+   Down Arrow = Down
+   Right Arrow = Right
 
-Press Ctrl+C to quit.
 
 ## Project Structure
 
