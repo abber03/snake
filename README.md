@@ -19,12 +19,13 @@ A classic Snake game built with Python and Pygame, with a twist! Featuring porta
 1. Download "game.py"
 2. Run "python3 -m pip install pygame-ce" in the TERMINAL section, not in the code.
 3. Run the code
+4. when the game pops up, press SPACE to start
 
-3. Use:
-   Up Arrow = Up
-   Left Arrow = Left
-   Down Arrow = Down
-   Right Arrow = Right
+Movements are:
+   Up Arrow = moves snake up
+   Left Arrow = moves snake left
+   Down Arrow = moves snake down
+   Right Arrow = moves snake right
 
 
 ## Project Structure
